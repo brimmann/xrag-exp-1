@@ -7,6 +7,7 @@ def main():
     """
     Downloads and investigates the OpenWebText dataset using streaming.
     """
+    print("Small Test")
     print("Attempting to load the OpenWebText dataset in streaming mode...")
 
     try:
