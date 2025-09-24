@@ -10,9 +10,9 @@ def main():
     print("Attempting to load the OpenWebText dataset in streaming mode...")
 
     try:
-        # Load the OpenWebText dataset from Hugging Face in streaming mode
-        # This avoids downloading the entire dataset at once.
-        dataset = load_dataset("Skylion007/openwebtext", split='train', streaming=True)
+        # Load the updated OpenWebText dataset from Hugging Face in streaming mode.
+        # The name "openwebtext" points to the modern, supported version.
+        dataset = load_dataset("openwebtext", split='train', streaming=True)
         print("Dataset loaded successfully in streaming mode.")
 
         # Let's look at the first example in the dataset
