@@ -12,7 +12,7 @@ def main():
     try:
         # Load the updated OpenWebText dataset from Hugging Face in streaming mode.
         # The name "openwebtext" points to the modern, supported version.
-        dataset = load_dataset("openwebtext", split='train', streaming=True)
+        dataset = load_dataset("openwebtext")
         print("Dataset loaded successfully in streaming mode.")
 
         # Let's look at the first example in the dataset
