@@ -11,8 +11,8 @@ def main():
 
     try:
         # Load the updated OpenWebText dataset from Hugging Face in streaming mode.
-        # The name "openwebtext" points to the modern, supported version.
-        dataset = load_dataset("openwebtext")
+        # Using "sytelus/openwebtext", a script-less Parquet version of the dataset.
+        dataset = load_dataset("sytelus/openwebtext", streaming=True)
         print("Dataset loaded successfully in streaming mode.")
 
         # Let's look at the first example in the dataset
