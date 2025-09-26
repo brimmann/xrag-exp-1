@@ -8,34 +8,35 @@ def generate_text(model, tokenizer, prompt, max_new_tokens=50, device='cpu'):
     """
     print(f"Generating text from prompt: '{prompt}'")
     
-    # Put the model in evaluation mode
     model.eval()
     
-    # Tokenize the input prompt
-    input_ids = tokenizer.encode(prompt, return_tensors='pt')
-    
-    # Generate tokens one by one
+    input_ids = tokenizer.encode(prompt, return_tensors='pt').to(device)
     generated_ids = input_ids
     
-    with torch.no_grad(): # We don't need to calculate gradients for generation
-        for _ in range(max_new_tokens):
-            # Get the logits from the model
-            # We only pass the last `n_positions` tokens to the model to avoid size errors
-            # This is our "context window"
+    # --- DEBUGGING ---
+    # Let's check the device of our model and our initial data.
+    model_device = next(model.parameters()).device
+    print(f"  [Debug] Model is on device: {model_device}")
+    print(f"  [Debug] Initial 'generated_ids' is on device: {generated_ids.device}")
+    # --- END DEBUGGING ---
+
+    with torch.no_grad():
+        for i in range(max_new_tokens):
             context = generated_ids[:, -GPTConfig().n_positions:]
+            
+            # --- DEBUGGING ---
+            # Now let's check the context right before it's sent to the model on each loop.
+            print(f"  [Debug] Loop {i+1}: 'context' tensor is on device: {context.device}")
+            if context.device != model_device:
+                print("  [Debug] MISMATCH DETECTED! Context is not on the same device as the model.")
+            # --- END DEBUGGING ---
+
             logits = model(context)
             
-            # The model predicts the next token, so we only care about the logits for the very last token
             last_logits = logits[:, -1, :]
-            
-            # Use the logits to sample the next token ID
-            # This adds some randomness, making the output more interesting than just picking the single best token
             next_token_id = torch.multinomial(torch.nn.functional.softmax(last_logits, dim=-1), num_samples=1)
-            
-            # Append the new token to our sequence
             generated_ids = torch.cat((generated_ids, next_token_id), dim=1)
 
-    # Decode the generated token IDs back into text
     generated_text = tokenizer.decode(generated_ids[0], skip_special_tokens=True)
     
     print("\n--- Generated Text ---")
@@ -44,34 +45,21 @@ def generate_text(model, tokenizer, prompt, max_new_tokens=50, device='cpu'):
 
 
 if __name__ == "__main__":
-    # --- Device Setup ---
-    # Check if a CUDA-enabled GPU is available, otherwise fall back to CPU
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using device: {device}")
     
-    # --- Model Loading ---
     checkpoint_path = "../model.pt"
     print(f"Loading model from {checkpoint_path}...")
     
-    # Create a new model instance first
     model = create_model()
-    
-    # Load the saved state dictionary
-    # The state_dict contains all the learned weights and biases.
     model.load_state_dict(torch.load(checkpoint_path))
-    
-    # Move the model to the selected device
     model.to(device)
     print("Model loaded successfully.")
     
-    # 2. Load the tokenizer
     print("\nLoading tokenizer...")
     tokenizer = AutoTokenizer.from_pretrained("gpt2")
     
-    # 3. Define a prompt
     prompt_text = "The meaning of life is"
-    
-    # 4. Generate text, passing the device to fix the error
     generate_text(model, tokenizer, prompt_text, device=device)
     
     prompt_text_2 = "Once upon a time in a land far, far away"
