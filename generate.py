@@ -45,6 +45,7 @@ def generate_text(model, tokenizer, prompt, max_new_tokens=50, device='cpu'):
 
 if __name__ == "__main__":
     # --- Device Setup ---
+    # Check if a CUDA-enabled GPU is available, otherwise fall back to CPU
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using device: {device}")
     
@@ -56,7 +57,6 @@ if __name__ == "__main__":
     model = create_model()
     
     # Load the saved state dictionary
-    # The state_dict contains all the learned weights and biases.
     model.load_state_dict(torch.load(checkpoint_path))
     
     # Move the model to the selected device
@@ -70,8 +70,8 @@ if __name__ == "__main__":
     # 3. Define a prompt
     prompt_text = "The meaning of life is"
     
-    # 4. Generate text
-    generate_text(model, tokenizer, prompt_text)
+    # 4. Generate text, passing the device
+    generate_text(model, tokenizer, prompt_text, device=device)
     
     prompt_text_2 = "Once upon a time in a land far, far away"
-    generate_text(model, tokenizer, prompt_text_2)
+    generate_text(model, tokenizer, prompt_text_2, device=device)
