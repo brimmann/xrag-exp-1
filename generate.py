@@ -36,7 +36,8 @@ if __name__ == "__main__":
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using device: {device}")
     
-    checkpoint_path = "../model_final.pt"
+    # Use the final model from the long training run
+    checkpoint_path = "../model_final_50000.pt"
     print(f"Loading model from {checkpoint_path}...")
     
     model = create_model()
