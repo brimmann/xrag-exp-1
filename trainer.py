@@ -28,9 +28,10 @@ class Trainer:
                 data_iterator = iter(dataset)
                 batch = next(data_iterator)
 
-            # Move the data to the GPU
-            input_ids = torch.tensor(batch['input_ids']).to(self.device)
-            labels = torch.tensor(batch['labels']).to(self.device)
+            # Move the data to the GPU and add the batch dimension
+            # We use .unsqueeze(0) to change the shape from [1024] to [1, 1024]
+            input_ids = torch.tensor(batch['input_ids']).unsqueeze(0).to(self.device)
+            labels = torch.tensor(batch['labels']).unsqueeze(0).to(self.device)
 
             # 2. FORWARD PASS: Get the model's predictions (logits)
             logits = self.model(input_ids)

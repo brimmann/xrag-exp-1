@@ -35,7 +35,7 @@ def main():
         return
 
     # --- Training ---
-    print("\n--- Model Creation ---")
+    print("\n--- Training ---")
     try:
         # Create a Trainer instance, which also creates the optimizer
         trainer = Trainer(model, device)
