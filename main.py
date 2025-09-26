@@ -3,13 +3,13 @@
 
 from dataset_loader import load_dataset_wrapper
 from pre_processing_dataset import process_dataset
+from model import create_model
 
 def main():
     """
     Downloads, processes, and investigates the OpenWebText dataset.
     """
-    print("Attempting to load the OpenWebText dataset in streaming mode...")
-
+    print("--- Data Loading and Processing ---")
     try:
         # Step 1: Load the raw text dataset
         raw_dataset = load_dataset_wrapper()
@@ -33,9 +33,18 @@ def main():
         print(f"\nFirst 20 token IDs: {first_processed_example['input_ids'][:20]}")
 
     except Exception as e:
-        print(f"\nAn error occurred: {e}")
+        print(f"\nAn error occurred during data processing: {e}")
         print("Please ensure you have an internet connection and the required libraries are installed correctly.")
         print("You can install them with: pip install datasets transformers torch")
+        return # Exit if data processing fails
+
+    print("\n--- Model Creation ---")
+    try:
+        # Step 3: Create the model architecture
+        model = create_model()
+    except Exception as e:
+        print(f"\nAn error occurred during model creation: {e}")
+
 
 if __name__ == "__main__":
     main()
