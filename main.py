@@ -40,13 +40,19 @@ def main():
         # Create a Trainer instance, which also creates the optimizer
         trainer = Trainer(model, device)
         
-        # Start training!
-        # We'll start with a small number of steps (500) just to see it work.
-        # A real training run would be for hundreds of thousands of steps.
-        trainer.train(processed_dataset, num_train_steps=500, log_interval=100)
+        # Start training for a longer duration!
+        # We'll run for 5000 steps.
+        # We'll log the loss every 100 steps.
+        # We'll save a checkpoint every 1000 steps.
+        trainer.train(
+            processed_dataset, 
+            num_train_steps=5000, 
+            log_interval=100, 
+            save_interval=1000
+        )
 
-        # Save the trained model
-        trainer.save_model()
+        # Save the final model at the very end
+        trainer.save_model(checkpoint_path="../model_final.pt")
 
     except Exception as e:
         print(f"\nAn error occurred during training: {e}")

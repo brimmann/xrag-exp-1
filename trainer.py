@@ -20,7 +20,7 @@ class Trainer:
         torch.save(self.model.state_dict(), checkpoint_path)
         print("Model saved successfully.")
 
-    def train(self, dataset, num_train_steps=500, log_interval=100):
+    def train(self, dataset, num_train_steps=500, log_interval=100, save_interval=1000):
         print("\n--- Starting Training ---")
         self.model.train()  # Set the model to training mode. This enables things like dropout.
 
@@ -68,5 +68,10 @@ class Trainer:
                 avg_loss = total_loss / log_interval
                 print(f"Step {step + 1}/{num_train_steps} | Average Loss: {avg_loss:.4f}")
                 total_loss = 0 # Reset for the next interval
+
+            # Periodically save a checkpoint during training
+            if (step + 1) % save_interval == 0:
+                self.save_model(checkpoint_path=f"../model_step_{step+1}.pt")
+
 
         print("--- Training Finished ---")
