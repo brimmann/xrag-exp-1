@@ -2,7 +2,7 @@ import torch
 from model import create_model, GPTConfig
 from transformers import AutoTokenizer
 
-def generate_text(model, tokenizer, prompt, max_new_tokens=50):
+def generate_text(model, tokenizer, prompt, max_new_tokens=50, device='cpu'):
     """
     Generates text using the model.
     """
@@ -44,9 +44,24 @@ def generate_text(model, tokenizer, prompt, max_new_tokens=50):
 
 
 if __name__ == "__main__":
-    # 1. Create the randomly initialized model
-    print("Creating a new, untrained model...")
+    # --- Device Setup ---
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print(f"Using device: {device}")
+    
+    # --- Model Loading ---
+    checkpoint_path = "checkpoints/model.pt"
+    print(f"Loading model from {checkpoint_path}...")
+    
+    # Create a new model instance first
     model = create_model()
+    
+    # Load the saved state dictionary
+    # The state_dict contains all the learned weights and biases.
+    model.load_state_dict(torch.load(checkpoint_path))
+    
+    # Move the model to the selected device
+    model.to(device)
+    print("Model loaded successfully.")
     
     # 2. Load the tokenizer
     print("\nLoading tokenizer...")

@@ -1,4 +1,5 @@
 import torch
+import os
 
 class Trainer:
     """
@@ -11,6 +12,16 @@ class Trainer:
         # It takes the model's parameters and a learning rate.
         self.optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
         print(f"Optimizer created with learning rate: {learning_rate}")
+
+    def save_model(self, checkpoint_path="checkpoints/model.pt"):
+        """Saves the model's state dictionary."""
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
+        
+        print(f"\n--- Saving model to {checkpoint_path} ---")
+        # We save the model's state_dict, which contains all the learned weights and biases.
+        torch.save(self.model.state_dict(), checkpoint_path)
+        print("Model saved successfully.")
 
     def train(self, dataset, num_train_steps=500, log_interval=100):
         print("\n--- Starting Training ---")

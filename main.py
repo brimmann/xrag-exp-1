@@ -44,6 +44,10 @@ def main():
         # We'll start with a small number of steps (500) just to see it work.
         # A real training run would be for hundreds of thousands of steps.
         trainer.train(processed_dataset, num_train_steps=500, log_interval=100)
+
+        # Save the trained model
+        trainer.save_model()
+
     except Exception as e:
         print(f"\nAn error occurred during training: {e}")
 
