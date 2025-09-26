@@ -5,12 +5,13 @@ import math
 
 # First, let's create our own configuration class to hold the model's parameters.
 class GPTConfig:
-    def __init__(self, vocab_size=50257, n_positions=1024, n_embd=768, n_layer=12, n_head=12):
+    def __init__(self, vocab_size=50257, n_positions=1024, n_embd=768, n_layer=12, n_head=12, dropout=0.1):
         self.vocab_size = vocab_size
         self.n_positions = n_positions  # Max sequence length
         self.n_embd = n_embd            # Embedding dimension
         self.n_layer = n_layer          # Number of transformer blocks
         self.n_head = n_head            # Number of attention heads
+        self.dropout = dropout # Add dropout to the config
 
 class MultiHeadSelfAttention(nn.Module):
     """
@@ -24,6 +25,8 @@ class MultiHeadSelfAttention(nn.Module):
         self.c_attn = nn.Linear(config.n_embd, 3 * config.n_embd)
         # Another linear layer to project the combined head outputs back to the embedding dimension.
         self.c_proj = nn.Linear(config.n_embd, config.n_embd)
+        # Add dropout layer
+        self.resid_dropout = nn.Dropout(config.dropout)
         # Store config
         self.n_head = config.n_head
         self.n_embd = config.n_embd
@@ -52,7 +55,7 @@ class MultiHeadSelfAttention(nn.Module):
         y = y.transpose(1, 2).contiguous().view(B, T, C)
 
         # Final projection
-        y = self.c_proj(y)
+        y = self.resid_dropout(self.c_proj(y))
         return y
 
 class FeedForward(nn.Module):
@@ -62,11 +65,15 @@ class FeedForward(nn.Module):
         self.c_fc    = nn.Linear(config.n_embd, 4 * config.n_embd)
         self.c_proj  = nn.Linear(4 * config.n_embd, config.n_embd)
         self.act = nn.GELU() # GELU activation function
+        # Add dropout layer
+        self.dropout = nn.Dropout(config.dropout)
 
     def forward(self, x):
         x = self.c_fc(x)
         x = self.act(x)
         x = self.c_proj(x)
+        # Apply dropout
+        x = self.dropout(x)
         return x
 
 class TransformerBlock(nn.Module):
@@ -93,6 +100,8 @@ class GPTModel(nn.Module):
         self.transformer = nn.ModuleDict(dict(
             wte = nn.Embedding(config.vocab_size, config.n_embd),      # Token embeddings
             wpe = nn.Embedding(config.n_positions, config.n_embd),     # Positional embeddings
+            # Add dropout layer for embeddings
+            drop = nn.Dropout(config.dropout),
             h = nn.ModuleList([TransformerBlock(config) for _ in range(config.n_layer)]), # Stack of blocks
             ln_f = nn.LayerNorm(config.n_embd),
         ))
@@ -109,6 +118,8 @@ class GPTModel(nn.Module):
         tok_emb = self.transformer.wte(idx)
         pos_emb = self.transformer.wpe(pos)
         x = tok_emb + pos_emb
+        # Apply dropout to the sum of embeddings
+        x = self.transformer.drop(x)
         
         # Pass through all the transformer blocks
         for block in self.transformer.h:
